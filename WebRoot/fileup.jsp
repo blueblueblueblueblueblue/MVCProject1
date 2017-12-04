@@ -74,6 +74,7 @@
                         <input type="radio" name="optionsRadiosinline" id="optionsRadios3" value="option1" >
                     </a>
                 </div>
+
                 <div class="col-sm-6 col-md-3">
                     <a href="#" class="thumbnail" onclick="document.getElementById('able').className ='btn btn-primary btn-lg';document.getElementById('optionsRadios4').checked=true">
                         <img src="/wp-content/uploads/2014/06/kittens.jpg"

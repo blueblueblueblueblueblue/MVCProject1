@@ -105,19 +105,20 @@
                                                     <dd >
                                                         <a href="">
                                                             <i class="layui-icon"></i>
-                                                            <span> 区域</span>
+
+                                                            <div class="draglist" title="拖拽我" draggable="true">区域</div>
                                                         </a>
                                                     </dd>
                                                     <dd>
                                                         <a href="javascript:;">
                                                             <i class="layui-icon"></i>
-                                                            <span> 日期</span>
+                                                            <div class="draglist" title="拖拽我" draggable="true">区域</div>
                                                         </a>
                                                     </dd>
                                                     <dd>
                                                         <a href="javascript:;">
                                                             <i class="layui-icon"></i>
-                                                            <span> 省市</span>
+                                                            <div class="draglist" title="拖拽我" draggable="true">区域</div>
                                                         </a>
                                                     </dd>
                                                     <dd>
@@ -129,19 +130,19 @@
                                                     <dd >
                                                         <a href="">
                                                             <i class="layui-icon"></i>
-                                                            <span> 销售额</span>
+                                                            <div class="draglist" title="拖拽我" draggable="true">区域</div>
                                                         </a>
                                                     </dd>
                                                     <dd>
                                                         <a href="javascript:;">
                                                             <i class="layui-icon"></i>
-                                                            <span> 利润</span>
+                                                            <div class="draglist" title="拖拽我" draggable="true">区域</div>
                                                         </a>
                                                     </dd>
                                                     <dd>
                                                         <a href="javascript:;">
                                                             <i class="layui-icon"></i>
-                                                            <span> 单价</span>
+                                                            <div class="draglist" title="拖拽我" draggable="true">区域</div>
                                                         </a>
                                                     </dd>
 
@@ -167,16 +168,16 @@
                             <div class="layui-tab-item layui-show">
                                 <form class="layui-form" action="">
                                     <div>
-                                        <div class="layui-form-item" style="float:left;">
+                                        <div class="dustbin" style="float:left;">
                                             <label class="layui-form-label">行：</label>
-                                            <div class="drop-target">
+                                            <div class="drop-target" id="drop-target">
 
                                             </div>
 
                                         </div>
-                                        <div style="float:left;">
+                                        <div class="dustbin1"  style="float:left;" >
                                             <label class="layui-form-label">列：</label>
-                                            <div class="drop-target">
+                                            <div class="drop-target" id="drop-target1">
 
                                             </div>
 
@@ -237,49 +238,97 @@
 </script>
 
 <script>
-    //获取目标元素
-    var target = document.querySelector('.drop-target');
-    //获取需要拖放的元素
-    var dragElements = document.querySelectorAll('#drag-elements dd a');
-    //临时记录被拖放的元素
-    var elementDragged = null;
-    //循环监听被拖放元素的开始拖放和结束拖放事件
-    for (var i = 0; i < dragElements.length; i++) {
-        //开始拖放事件监听
-        dragElements[i].addEventListener('dragstart', function(e) {
-            //设置当前拖放元素的数据参数
-            e.dataTransfer.setData('text', this.innerHTML);
-            //保存当前拖放对象
-            elementDragged = this;
-        });
-        //结束拖放事件监听
-        dragElements[i].addEventListener('dragend', function(e) {
-            //注销当前拖放对象
-            elementDragged = null;
-        });
+    var $ = function(selector) {
+        if (!selector) { return []; }
+        var arrEle = [];
+        if (document.querySelectorAll) {
+            arrEle = document.querySelectorAll(selector);
+        } else {
+            var oAll = document.getElementsByTagName("div"), lAll = oAll.length;
+            if (lAll) {
+                var i = 0;
+                for (i; i<lAll; i+=1) {
+                    if (/^\./.test(selector)) {
+                        if (oAll[i].className === selector.replace(".", "")) {
+                            arrEle.push(oAll[i]);
+                        }
+                    } else if(/^#/.test(selector)) {
+                        if (oAll[i].id === selector.replace("#", "")) {
+                            arrEle.push(oAll[i]);
+                        }
+                    }
+                }
+            }
+        }
+        return arrEle;
+    };
+
+    var eleDustbin = $(".dustbin")[0], eleDrags = $(".draglist"), lDrags = eleDrags.length, eleRemind = $(".dragremind")[0], eleDrag = null,eleDustbin1 = $(".dustbin1")[0];
+    for (var i=0; i<lDrags; i+=1) {
+        eleDrags[i].onselectstart = function() {
+            return false;
+        };
+        eleDrags[i].ondragstart = function(ev) {
+            ev.dataTransfer.effectAllowed = "move";
+            ev.dataTransfer.setData("text", ev.target.innerHTML);
+            ev.dataTransfer.setDragImage(ev.target, 0, 0);
+            eleDrag = ev.target;
+            return true;
+        };
+        eleDrags[i].ondragend = function(ev) {
+            ev.dataTransfer.clearData("text");
+            eleDrag = null;
+            return false
+        };
     }
-    //目标元素监听被拖放元素进入事件
-    target.addEventListener('dragover', function(e) {
-        //阻止浏览器默认行为
-        e.preventDefault();
-        //设置鼠标样式
-        e.dataTransfer.dropEffect = 'move';
+    eleDustbin.ondragover = function(ev) {
+        ev.preventDefault();
+        return true;
+    };
+
+    eleDustbin.ondragenter = function(ev) {
+        this.style.color = "#37a000";
+        return true;
+    };
+    eleDustbin.ondrop = function(ev) {
+        if (eleDrag) {
+
+            var o=document.getElementById("drop-target");
+            var p1=document.createElement("div");
+            p1.innerHTML='<strong>"' + eleDrag.innerHTML + '"</strong>';
+            o.appendChild(p1);
+            //eleRemind.innerHTML = '<strong>"' + eleDrag.innerHTML + '"</strong>被扔进了垃圾箱';
+
+            //eleDrag.parentNode.removeChild(eleDrag);
+        }
+        this.style.color = "#000000";
         return false;
-    });
-    //目标元素监听当被拖放元素落下时刻事件
-    target.addEventListener('drop', function(e) {
-        //阻止默认行为
-        e.preventDefault();
-        //阻止默认行为
-        e.stopPropagation();
-        //获取当前被拖放元素的存放数据参数
-        this.innerHTML =e.dataTransfer.getData('text');
-        //删除被拖放元素
-        document.querySelector('#dragelements').
-        removeChild(elementDragged);
+    };
+    eleDustbin1.ondragover = function(ev) {
+        ev.preventDefault();
+        return true;
+    };
+
+    eleDustbin1.ondragenter = function(ev) {
+        this.style.color = "#37a000";
+        return true;
+    };
+    eleDustbin1.ondrop = function(ev) {
+        if (eleDrag) {
+
+            var o=document.getElementById("drop-target1");
+            var p1=document.createElement("div");
+            p1.innerHTML='<strong>"' + eleDrag.innerHTML + '"</strong>';
+            o.appendChild(p1);
+            //eleRemind.innerHTML = '<strong>"' + eleDrag.innerHTML + '"</strong>被扔进了垃圾箱';
+
+            //eleDrag.parentNode.removeChild(eleDrag);
+        }
+        this.style.color = "#000000";
         return false;
-    });
+    };
 </script>
+
 
 
 </body>
